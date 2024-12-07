@@ -1,0 +1,11 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_8Ihq3vqZU/
+
+server:
+  tomcat:
+    max-http-form-post-size: 5500MB
+  port: 9090

@@ -1,10 +1,8 @@
 package com.klef.JobPortal.handler;
 
-import com.klef.JobPortal.dtos.CheckUserDto;
+import com.klef.JobPortal.dtos.*;
 import com.klef.JobPortal.security.JwtVerifier;
-import com.klef.JobPortal.dtos.MessageDto;
 //import com.klef.JobPortal.model.Events;
-import com.klef.JobPortal.dtos.UserDto;
 import com.klef.JobPortal.model.Events;
 import com.klef.JobPortal.model.Users;
 import com.klef.JobPortal.repository.EventsRepository;
@@ -12,6 +10,7 @@ import com.klef.JobPortal.services.UserService;
 import com.klef.JobPortal.utils.DateUtils;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,5 +83,33 @@ public class UserHandler {
 
     public ResponseEntity<List<UserDto>> searchUsers(String searchKeyword, HttpServletRequest request) {
         return userService.searchUsers(searchKeyword);
+    }
+
+    public ResponseEntity<AllUsersDto> getAllUsers(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        String jwtToken = token.substring(7);
+        Claims jwtClaims;
+        try {
+            jwtClaims = JwtVerifier.verifyJwt(jwtToken);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        event.userName = jwtClaims.get("cognito:username", String.class);
+        event.eventType = "get all user";
+        event.url = request.getRequestURI();
+        event.ipAddress = request.getRemoteAddr();
+        event.httpMethod = request.getMethod();
+        event.createdAt = DateUtils.generateTimeStamp();
+
+        eventRepo.save(event);
+
+        try {
+            AllUsersDto response = userService.getAllUsers();
+            return ResponseEntity.ok(response);
+        }
+        catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }

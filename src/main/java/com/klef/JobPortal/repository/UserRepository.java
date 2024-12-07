@@ -23,4 +23,6 @@ public interface UserRepository extends JpaRepository<Users, Long> {
             "u.role IN ('PROFESSIONAL', 'USER')")
     List<UserDto> searchUsers(@Param("searchText") String searchText);
 
+    @Query(value = "SELECT * FROM job LIMIT :pageSize OFFSET :offset", nativeQuery = true)
+    List<Users> findJobsWithPagination(@Param("offset") int offset, @Param("pageSize") int pageSize);
 }

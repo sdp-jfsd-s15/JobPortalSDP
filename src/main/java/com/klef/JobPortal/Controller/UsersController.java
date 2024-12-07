@@ -2,6 +2,7 @@ package com.klef.JobPortal.Controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.klef.JobPortal.dtos.AllUsersDto;
 import com.klef.JobPortal.dtos.CheckUserDto;
 import com.klef.JobPortal.dtos.MessageDto;
 import com.klef.JobPortal.dtos.UserDto;
@@ -37,6 +38,13 @@ public class UsersController {
     @GetMapping(path = "/getDetails/{userName}")
     public ResponseEntity<Users> getUserDetails(@PathVariable("userName") String userName, HttpServletRequest request) {
         return userHandler.getUserDetails(userName, request);
+    }
+
+    @GetMapping(path = "/getAllUsers")
+    public ResponseEntity<AllUsersDto> getAllUsers(
+            HttpServletRequest request
+    ) {
+        return userHandler.getAllUsers(request);
     }
 
     @GetMapping(path = "/checkUser/{userName}")

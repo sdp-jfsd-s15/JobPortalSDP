@@ -1,5 +1,6 @@
 package com.klef.JobPortal.services;
 
+import com.klef.JobPortal.dtos.AllUsersDto;
 import com.klef.JobPortal.dtos.CheckUserDto;
 import com.klef.JobPortal.dtos.MessageDto;
 import com.klef.JobPortal.dtos.UserDto;
@@ -116,4 +117,32 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // Return 500 if an error occurs
         }
     }
+
+    public AllUsersDto getAllUsers() {
+        try {
+            // Get the total number of users
+            List<Users> users = userRepo.findAll();
+
+            // Map users to UserInfo DTO
+            List<AllUsersDto.UserInfo> userDetails = users.stream()
+                    .map(user -> new AllUsersDto.UserInfo(
+                            user.user_id,
+                            user.userName,
+                            user.email,
+                            user.role,
+                            user.firstName,
+                            user.middleName,
+                            user.lastName,
+                            user.contactInfo.getPhone()
+                    ))
+                    .toList();
+
+            // Return the DTO
+            return new AllUsersDto(userDetails);
+        } catch (Exception e) {
+            // Log the exception (if logger is available)
+            return null;
+        }
+    }
+
 }

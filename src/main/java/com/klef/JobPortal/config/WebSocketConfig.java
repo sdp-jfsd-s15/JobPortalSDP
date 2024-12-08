@@ -12,7 +12,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("https://jobportalsdpps18-s15-04-90053-31880.netlify.app/") // Allow frontend origin
+                .setAllowedOrigins("http://localhost:3000") // Allow frontend origin
                 .withSockJS(); // Enable SockJS fallback
     }
 

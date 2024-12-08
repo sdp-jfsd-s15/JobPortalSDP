@@ -1,9 +1,12 @@
 package com.klef.JobPortal.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import com.klef.JobPortal.model.Role;
 import com.klef.JobPortal.model.ContactInfo;
+
+import java.sql.Blob;
 import java.util.List;
 
 @Getter

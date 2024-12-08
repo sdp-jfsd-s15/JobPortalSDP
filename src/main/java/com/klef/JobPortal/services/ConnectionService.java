@@ -223,18 +223,16 @@ public class ConnectionService {
                     .findFirst();
 
             if (connection.isPresent() && connectionUser.isPresent()) {
-                // Update the status of the connection
-                connection.get().status = status;
-                connection.get().updatedAt = DateUtils.generateTimeStamp();
+                if ("REMOVE".equalsIgnoreCase(status)) {
+                    // Set both connection statuses to empty if status is "REMOVE"
+                    connection.get().status = "";
+                    connectionUser.get().status = "";
 
-                connectionUser.get().status = status;
-                connectionUser.get().updatedAt = DateUtils.generateTimeStamp();
+                    // Update the timestamp for both connections
+                    connection.get().updatedAt = DateUtils.generateTimeStamp();
+                    connectionUser.get().updatedAt = DateUtils.generateTimeStamp();
 
-                // Save the updated connections back to the database
-                connectionsRepo.save(connections);
-                connectionsRepo.save(connectionsUser);
-
-                if ("ACCEPTED".equalsIgnoreCase(status)) {
+                    // Decrement the connections count for both users
                     Optional<Users> userEntityOptional = userRepo.findUserByUserName(user); // Fetch the requesting user
                     Optional<Users> targetUserEntityOptional = userRepo.findUserByUserName(userName); // Fetch the target user
 
@@ -243,9 +241,9 @@ public class ConnectionService {
                         Users userEntity = userEntityOptional.get();
                         Users targetUserEntity = targetUserEntityOptional.get();
 
-                        // Increment the connectionsCount for both users
-                        userEntity.connectionsCount++;
-                        targetUserEntity.connectionsCount++;
+                        // Decrement the connectionsCount for both users
+                        userEntity.connectionsCount--;
+                        targetUserEntity.connectionsCount--;
 
                         // Save the updated entities
                         userRepo.save(userEntity);
@@ -255,7 +253,43 @@ public class ConnectionService {
                         logger.error("User or target user not found: user={}, targetUser={}", user, userName);
                         throw new IllegalArgumentException("User or target user not found");
                     }
+                } else {
+                    // Update the status of the connection if not "REMOVE"
+                    connection.get().status = status;
+                    connectionUser.get().status = status;
+
+                    // Update the timestamp for both connections
+                    connection.get().updatedAt = DateUtils.generateTimeStamp();
+                    connectionUser.get().updatedAt = DateUtils.generateTimeStamp();
+
+                    // If status is ACCEPTED, update connection counts
+                    if ("ACCEPTED".equalsIgnoreCase(status)) {
+                        Optional<Users> userEntityOptional = userRepo.findUserByUserName(user); // Fetch the requesting user
+                        Optional<Users> targetUserEntityOptional = userRepo.findUserByUserName(userName); // Fetch the target user
+
+                        // Check if both users exist
+                        if (userEntityOptional.isPresent() && targetUserEntityOptional.isPresent()) {
+                            Users userEntity = userEntityOptional.get();
+                            Users targetUserEntity = targetUserEntityOptional.get();
+
+                            // Increment the connectionsCount for both users
+                            userEntity.connectionsCount++;
+                            targetUserEntity.connectionsCount++;
+
+                            // Save the updated entities
+                            userRepo.save(userEntity);
+                            userRepo.save(targetUserEntity);
+                        } else {
+                            // Handle case where one or both users do not exist
+                            logger.error("User or target user not found: user={}, targetUser={}", user, userName);
+                            throw new IllegalArgumentException("User or target user not found");
+                        }
+                    }
                 }
+
+                // Save the updated connections back to the database
+                connectionsRepo.save(connections);
+                connectionsRepo.save(connectionsUser);
 
                 // Return success response
                 return ResponseEntity.ok(new MessageDto("Connection status updated successfully"));

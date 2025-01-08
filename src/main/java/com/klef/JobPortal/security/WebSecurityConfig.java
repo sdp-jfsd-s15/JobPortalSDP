@@ -39,14 +39,17 @@ public class WebSecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("https://jobportalsdpps18-s15-04-90053-31880.netlify.app"); 
-        config.addAllowedHeader("*"); // Allow all headers
-        config.addAllowedMethod("*"); // Allow all HTTP methods
-        config.addExposedHeader("Sec-WebSocket-Protocol"); // Allow WebSocket protocol headers
+        config.addAllowedOrigin("https://jobportalsdpps18-s15-04-90053-31880.netlify.app");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.addExposedHeader("Authorization"); // Expose specific headers if needed
+        config.setMaxAge(3600L); // Cache the preflight response for 1 hour
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;
     }
+
 }
